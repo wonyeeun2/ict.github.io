@@ -205,6 +205,55 @@
   .chart-legend .sw{width:10px;height:10px;border-radius:3px;}
 
   footer.note{margin-top:24px;font-size:11.5px;color:var(--ink-faint);line-height:1.7;border-top:1px solid var(--border);padding-top:14px;}
+
+  /* ---- venue toggle ---- */
+  .venue-grid{display:flex;gap:10px;flex-wrap:wrap;}
+  .venue-card{flex:1;min-width:160px;border:1.5px solid var(--border);background:var(--surface-2);border-radius:12px;padding:13px 14px;cursor:pointer;}
+  .venue-card.sel{border-color:var(--teal);background:var(--teal-soft);}
+  .venue-card b{font-size:13.5px;display:block;}
+  .venue-card span{font-size:11.5px;color:var(--ink-dim);line-height:1.5;display:block;margin-top:3px;}
+
+  /* ---- pain checklist ---- */
+  .pain-grid{display:flex;flex-wrap:wrap;gap:8px;}
+  .pain-opt{border:1.5px solid var(--border);background:var(--surface-2);color:var(--ink-dim);font-size:12px;font-weight:700;
+    padding:8px 13px;border-radius:20px;cursor:pointer;transition:all .15s;}
+  .pain-opt:hover{border-color:var(--red);}
+  .pain-opt.sel{border-color:var(--red);background:var(--red-soft);color:var(--red);}
+
+  /* ---- exercise start popup ---- */
+  .modal-backdrop{position:fixed;inset:0;background:rgba(10,20,18,.55);display:none;align-items:center;justify-content:center;z-index:100;padding:16px;}
+  .modal-backdrop.show{display:flex;}
+  .modal-box{background:var(--surface);border-radius:var(--radius);max-width:460px;width:100%;padding:22px;max-height:88vh;overflow:auto;}
+  .modal-box h3{font-family:'Sora',sans-serif;font-size:16px;margin:0 0 10px;}
+  .modal-illust{background:var(--surface-2);border-radius:12px;padding:14px;display:flex;justify-content:center;margin-bottom:12px;}
+  .modal-cautions{display:flex;flex-direction:column;gap:7px;margin:10px 0;}
+  .modal-cautions li{list-style:none;font-size:12.5px;color:var(--ink-dim);background:var(--surface-2);border-radius:8px;padding:8px 10px;line-height:1.55;}
+  .modal-cautions li b{color:var(--ink);}
+
+  /* ---- center overlay feedback on video ---- */
+  .center-fb{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);max-width:88%;text-align:center;
+    background:rgba(6,14,12,.68);color:#fff;font-weight:700;font-size:15px;line-height:1.5;padding:12px 18px;border-radius:12px;
+    pointer-events:none;opacity:0;transition:opacity .2s;z-index:5;}
+  .center-fb.show{opacity:1;}
+  .center-fb.good{background:rgba(30,154,92,.72);}
+  .center-fb.bad{background:rgba(214,72,58,.72);}
+
+  /* ---- attendance calendar ---- */
+  .cal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+  .cal-head button{background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:6px 10px;cursor:pointer;font-weight:700;color:var(--ink-dim);}
+  .cal-title{font-family:'Sora',sans-serif;font-weight:700;font-size:14px;}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;}
+  .cal-dow{font-size:10.5px;color:var(--ink-faint);text-align:center;font-weight:700;padding-bottom:4px;}
+  .cal-day{aspect-ratio:1;border-radius:9px;background:var(--surface-2);border:1px solid var(--border);display:flex;flex-direction:column;
+    align-items:center;justify-content:center;font-size:11px;color:var(--ink-dim);cursor:default;position:relative;}
+  .cal-day.empty{background:none;border:none;}
+  .cal-day.attend{background:var(--teal-soft);border-color:var(--teal);color:var(--ink);cursor:pointer;}
+  .cal-day.attend.pain{background:var(--red-soft);border-color:var(--red);}
+  .cal-day .dot{width:5px;height:5px;border-radius:50%;background:var(--teal);margin-top:2px;}
+  .cal-day.pain .dot{background:var(--red);}
+  .cal-day.today{outline:2px solid var(--coral);outline-offset:1px;}
+  .cal-detail{margin-top:12px;background:var(--surface-2);border-radius:10px;padding:11px 13px;font-size:12.5px;line-height:1.6;color:var(--ink-dim);}
+  .cal-detail b{color:var(--ink);}
 </style>
 </head>
 <body>
@@ -328,16 +377,28 @@
   <!-- ============ TAB 2 : 맞춤 운동추천 ============ -->
   <section class="panel" id="t2">
     <div class="card">
+      <h2>운동 장소 선택</h2>
+      <p class="hint">시설(장애인체육센터·헬스장)마다 이용 가능한 기구·공간 차이가 크고, 이동 자체가 어려운 경우도 있어 장소에 따라 추천 종목이 달라집니다.</p>
+      <div class="venue-grid" id="venueGrid"></div>
+    </div>
+
+    <div class="card">
       <h2>맞춤 운동추천</h2>
       <p class="hint" id="recHint">먼저 [01] 탭에서 체성분과 장애유형을 저장해주세요.</p>
       <div class="ex-list" id="exList"></div>
       <div class="alt-note" id="excludeNote" style="display:none;"></div>
-      <div class="src-note">추천 종목은 대한장애인체육회 장애인체력인증센터의 운동처방 동영상 3개 분류(<b>심폐지구력 · 근력 및 근지구력 · 유연성</b>)를 참고해 구성했습니다 — <a href="https://nfa.koreanpc.kr/front/main/main.do?menu_seq=0" target="_blank" rel="noopener">nfa.koreanpc.kr</a>. 실시간 AI 자세분석은 현재 앉았다 일어나기·팔굽혀펴기 계열 종목만 지원하며, 그 외 종목은 설명·주의사항 중심으로 안내됩니다.</div>
+      <div class="src-note">추천 종목·자세 기준은 대한장애인체육회 장애인체력인증센터의 운동처방 영상(<b>심폐지구력 · 근력 및 근지구력 · 유연성</b>)과 국립재활원 공식 영상을 참고해 구성했습니다 — <a href="https://nfa.koreanpc.kr/front/movie/movieSitePresList.do?fit_type_cd=02&menu_seq=965" target="_blank" rel="noopener">장애인체력인증센터 운동처방 영상</a> · <a href="https://www.youtube.com/watch?v=Og8Elh_OBV0" target="_blank" rel="noopener">국립재활원 영상 1</a> · <a href="https://www.youtube.com/watch?v=EpaqB0xVZV4" target="_blank" rel="noopener">국립재활원 영상 2</a>. 실시간 AI 자세분석은 현재 앉았다 일어나기·팔굽혀펴기 계열 종목만 지원하며, 그 외 종목은 설명·주의사항 중심으로 안내됩니다.</div>
     </div>
   </section>
 
   <!-- ============ TAB 3 : 트레이닝 처방 (신규) ============ -->
   <section class="panel" id="t3">
+    <div class="card">
+      <h2>오늘 통증 부위 체크 (선택)</h2>
+      <p class="hint">체크한 부위와 관련된 동작은 아래 루틴에서 자동으로 제외·대체되고, 안전한 종목·스트레칭으로 재구성됩니다. 매일 상태가 다를 수 있으니 그때그때 다시 체크해주세요.</p>
+      <div class="pain-grid" id="painGrid"></div>
+    </div>
+
     <div class="card">
       <h2>운동 처방 수준 선택</h2>
       <p class="hint">[02]에서 고른 종목과 체성분·장애특성을 바탕으로 수준별(FITT: 빈도·강도·시간·형태) 트레이닝 처방과 주간 훈련 배치를 자동 생성합니다.</p>
@@ -392,6 +453,7 @@
       <div class="cam-wrap" id="camWrap">
         <video id="camVideo" playsinline muted></video>
         <canvas id="camCanvas"></canvas>
+        <div class="center-fb" id="centerFb"></div>
         <div class="cam-overlay">
           <span class="pill" id="pillState">대기</span>
           <span class="pill rep" id="pillRep">0회</span>
@@ -436,6 +498,18 @@
     </div>
 
     <div class="card">
+      <h2>출석 체크 캘린더</h2>
+      <p class="hint">운동을 완료해 기록을 저장한 날이 자동으로 표시됩니다. 그 날 어떤 루틴으로 했는지, 통증 부위 때문에 무엇을 바꿨는지 눌러서 확인할 수 있어요.</p>
+      <div class="cal-head">
+        <button id="calPrevBtn">‹ 이전달</button>
+        <div class="cal-title" id="calTitle"></div>
+        <button id="calNextBtn">다음달 ›</button>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+      <div class="cal-detail" id="calDetail" style="display:none;"></div>
+    </div>
+
+    <div class="card">
       <h2>누적 기록</h2>
       <div id="historyArea"><div class="empty-state">기록이 없습니다.</div></div>
       <div class="btn-row" style="margin-top:10px;">
@@ -443,6 +517,18 @@
       </div>
     </div>
   </section>
+
+  <div class="modal-backdrop" id="startGuideModal">
+    <div class="modal-box">
+      <h3 id="guideTitle">시작 전 자세 가이드</h3>
+      <div class="modal-illust" id="guideIllust"></div>
+      <ul class="modal-cautions" id="guideCautions"></ul>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="guideOkBtn" style="flex:1;">확인했습니다, 시작하기</button>
+        <button class="btn btn-ghost" id="guideCancelBtn">취소</button>
+      </div>
+    </div>
+  </div>
 
   <footer class="note">
     프로토타입 · 자세분석은 MediaPipe Pose Landmarker(브라우저 내 실행)를 사용하며 서버로 영상이 전송되지 않습니다. 운동처방·주간배치 문구는 국민체력100·PAPS-D·장애인체력인증기준의 항목 구조를 참고한 자체 로직이며, 모든 기록은 이 브라우저(기기)에만 저장됩니다. 실제 서비스 적용 전 특수체육 전문가 검수를 권장합니다.
@@ -504,8 +590,8 @@
     { key:'phys', label:'지체장애', subs:[
       { key:'phys_lower_incomplete', label:'하지 불완전마비', tag:'ROM 완화', desc:'무릎·발목 가동범위가 제한적일 수 있어 목표 각도를 완화하고, 좌우 비대칭을 중점 모니터링합니다.', romAdjust:35, excludeMove:[], asymTolerance:16, feedback:'standard', legAuto:false },
       { key:'phys_lower_complete', label:'하지 완전마비(휠체어)', tag:'하지 종목 대체 · 상체 자동판단', desc:'하지 기반 동작은 자동 제외하고 상지 중심 종목으로 대체 추천합니다. 자세분석 중 하지 움직임이 없으면 자동으로 상체 동작 기준으로 전환합니다.', romAdjust:0, excludeMove:['squat_family'], asymTolerance:16, feedback:'standard', legAuto:true },
-      { key:'phys_upper_incomplete', label:'상지 불완전마비', tag:'ROM 완화', desc:'팔꿈치·어깨 가동범위를 완화하고, 편측 보상 동작 여부를 함께 확인합니다.', romAdjust:40, excludeMove:[], asymTolerance:18, feedback:'standard', legAuto:false },
-      { key:'phys_upper_complete', label:'상지 완전마비', tag:'상지 종목 대체', desc:'상지 기반 동작은 자동 제외하고 하지 중심 종목으로 대체 추천합니다.', romAdjust:0, excludeMove:['pushup_family'], asymTolerance:18, feedback:'standard', legAuto:false },
+      { key:'phys_upper_incomplete', label:'상지 불완전마비', tag:'ROM 완화 · 하체 자동판단', desc:'팔꿈치·어깨 가동범위를 완화하고, 편측 보상 동작 여부를 함께 확인합니다. 자세분석 중 상지 움직임이 거의 없으면 자동으로 하체 동작 기준으로 전환합니다.', romAdjust:40, excludeMove:[], asymTolerance:18, feedback:'standard', legAuto:false, armAuto:true },
+      { key:'phys_upper_complete', label:'상지 완전마비', tag:'상지 종목 대체 · 하체 자동판단', desc:'상지 기반 동작은 자동 제외하고 하지 중심 종목으로 대체 추천합니다. 자세분석 중 상지 움직임이 감지되지 않으면 자동으로 하체(무릎) 기준 카운트로 전환합니다.', romAdjust:0, excludeMove:['pushup_family'], asymTolerance:18, feedback:'standard', legAuto:false, armAuto:true },
       { key:'phys_amputee_lower', label:'절단 · 하지', tag:'부위별 대체', desc:'하지 절단 부위 특성상 무리가 갈 수 있는 종목은 낮은 순위로 밀고, 저충격 상지 중심 종목을 우선합니다.', romAdjust:25, excludeMove:[], asymTolerance:20, feedback:'standard', legAuto:true },
       { key:'phys_amputee_upper', label:'절단 · 상지', tag:'부위별 대체', desc:'상지 절단 부위 특성상 무리가 갈 수 있는 종목은 낮은 순위로 밀고, 저충격 하지 중심 종목을 우선합니다.', romAdjust:25, excludeMove:[], asymTolerance:20, feedback:'standard', legAuto:false },
       { key:'phys_spinal_cervical', label:'척수손상 · 경추(사지마비)', tag:'ROM 대폭 완화', desc:'상하지 모두 영향이 있을 수 있어 목표 각도를 크게 완화하고 저강도·저충격 종목을 우선합니다.', romAdjust:45, excludeMove:['squat_family'], asymTolerance:22, feedback:'gentle', legAuto:true },
@@ -553,35 +639,51 @@
   ];
 
   const EXERCISES = [
-    { id:'walk', name:'걷기', cat:'유산소', nfaCat:'cardio', movementType:'cardio', impact:1, bmiFit:['under','normal','over','obese'], legIntensive:true, desc:'관절 부담이 가장 적은 기초 유산소 운동. 모든 체성분·대부분의 장애유형에 우선 추천됩니다.' },
-    { id:'tt', name:'탁구', cat:'라켓', nfaCat:'cardio', movementType:'racket', impact:1, bmiFit:['normal','over'], legIntensive:false, desc:'좁은 반경에서 반사신경·손목 협응을 훈련하는 저충격 라켓 종목.' },
-    { id:'jog', name:'조깅', cat:'유산소', nfaCat:'cardio', movementType:'cardio', impact:2, bmiFit:['under','normal'], legIntensive:true, desc:'심폐지구력 향상에 효과적이나 무릎·발목에 걷기보다 부담이 큽니다.' },
-    { id:'tennis', name:'테니스', cat:'라켓', nfaCat:'cardio', movementType:'racket', impact:2, bmiFit:['normal'], legIntensive:true, desc:'순발력과 전신 협응을 함께 쓰는 중~고강도 라켓 스포츠.' },
-    { id:'racquetball', name:'라켓볼', cat:'라켓', nfaCat:'cardio', movementType:'racket', impact:3, bmiFit:['normal'], legIntensive:true, desc:'실내에서 빠른 방향전환이 많은 고강도 라켓 종목.' },
-    { id:'taekwondo', name:'태권도', cat:'무도', nfaCat:'cardio', movementType:'martial', impact:2, bmiFit:['normal','over'], legIntensive:true, desc:'품새 중심으로 접근하면 균형감각·유연성 훈련에 좋습니다.' },
-    { id:'pushup', name:'팔굽혀펴기', cat:'근력', nfaCat:'strength', movementType:'pushup_family', impact:1, bmiFit:['under','normal','over'], legIntensive:false, aiAnalysis:true, desc:'상체·코어 근력 기초 종목. 무릎 대고 하는 변형으로 강도 조절이 쉽습니다.' },
-    { id:'situp', name:'윗몸일으키기', cat:'근력', nfaCat:'strength', movementType:'situp', impact:1, bmiFit:['under','normal','over'], legIntensive:false, desc:'복근 중심 근력 운동. 목·허리 통증이 있으면 크런치로 대체를 권장합니다.' },
-    { id:'bike', name:'자전거', cat:'유산소', nfaCat:'cardio', movementType:'cardio', impact:1, bmiFit:['normal','over','obese'], legIntensive:true, desc:'체중 부하 없이 하지 근력·심폐지구력을 훈련할 수 있는 저충격 종목.' },
-    { id:'soccer', name:'축구', cat:'구기', nfaCat:'cardio', movementType:'ballgame', impact:3, bmiFit:['normal'], legIntensive:true, desc:'전신 지구력과 순발력이 필요한 고강도 팀 스포츠.' },
-    { id:'squash', name:'스쿼시', cat:'라켓', nfaCat:'cardio', movementType:'racket', impact:3, bmiFit:['normal'], legIntensive:true, desc:'짧은 시간 고강도로 체력을 소모하는 라켓 종목.' },
-    { id:'weight', name:'웨이트트레이닝', cat:'근력', nfaCat:'strength', movementType:'strength', impact:2, bmiFit:['under','normal','over'], legIntensive:false, desc:'부위별 근력·근비대를 목표로 하는 저항운동. 초반엔 맨몸·저중량 권장.' },
-    { id:'swim', name:'수영', cat:'유산소', nfaCat:'cardio', movementType:'cardio', impact:1, bmiFit:['under','normal','over','obese'], legIntensive:false, desc:'부력 덕분에 관절 부담이 가장 적어 지체장애·비만 체형 모두에 우선 추천됩니다.' },
-    { id:'kendo', name:'검도', cat:'무도', nfaCat:'cardio', movementType:'martial', impact:2, bmiFit:['normal'], legIntensive:true, desc:'집중력과 순발력, 하체 안정성을 함께 훈련하는 무도 종목.' },
-    { id:'basketball', name:'농구', cat:'구기', nfaCat:'cardio', movementType:'ballgame', impact:3, bmiFit:['normal'], legIntensive:true, desc:'점프·방향전환이 많아 하지 부담이 큰 고강도 구기 종목.' },
-    { id:'dumbbell', name:'덤벨체조', cat:'근력', nfaCat:'strength', movementType:'strength', impact:1, bmiFit:['under','normal','over','obese'], legIntensive:false, desc:'가벼운 중량으로 전신을 순환시키는 저강도 근력 운동. 입문자·장애유형 폭넓게 적합.' },
-    { id:'hiking', name:'등산', cat:'유산소', nfaCat:'cardio', movementType:'cardio', impact:2, bmiFit:['normal','over'], legIntensive:true, desc:'경사와 지형 변화로 하지 근력과 균형감각을 함께 훈련합니다.' },
-    { id:'gateball', name:'게이트볼', cat:'구기', nfaCat:'cardio', movementType:'ballgame', impact:1, bmiFit:['under','normal','over','obese'], legIntensive:false, desc:'이동 반경이 작고 접촉이 없어 이동 제한이 있어도 접근하기 쉬운 종목.' },
-    { id:'jumprope', name:'줄넘기', cat:'유산소', nfaCat:'cardio', movementType:'cardio', impact:3, bmiFit:['normal'], legIntensive:true, desc:'짧은 시간 고강도지만 발목·무릎에 충격이 큰 편입니다.' },
-    { id:'band', name:'탄력밴드', cat:'근력', nfaCat:'strength', movementType:'strength', impact:1, bmiFit:['under','normal','over','obese'], legIntensive:false, desc:'저항 강도를 밴드 색상으로 세밀하게 조절할 수 있어 장애유형 적용 폭이 가장 넓습니다.' },
-    { id:'aerobic', name:'에어로빅', cat:'유산소', nfaCat:'cardio', movementType:'cardio', impact:2, bmiFit:['normal','over'], legIntensive:true, desc:'음악에 맞춘 전신 유산소 운동으로 리듬감·협응력을 함께 기릅니다.' },
-    { id:'badminton', name:'배드민턴', cat:'라켓', nfaCat:'cardio', movementType:'racket', impact:2, bmiFit:['normal','over'], legIntensive:true, desc:'순발력과 어깨·손목 협응이 필요한 중강도 라켓 종목.' },
-    { id:'golf', name:'골프', cat:'기타', nfaCat:'cardio', movementType:'other', impact:1, bmiFit:['normal','over','obese'], legIntensive:false, desc:'카트 이동이 가능해 이동 제한이 있어도 접근하기 쉬운 저강도 정밀 종목.' },
-    { id:'sit2stand', name:'앉았다 일어나기', cat:'기능성 근력', nfaCat:'strength', movementType:'squat_family', impact:1, bmiFit:['under','normal','over','obese'], legIntensive:true, aiAnalysis:true, desc:'하지 기능평가·재활에 자주 쓰이는 기초 기능성 운동. 실시간 무릎각도 분석이 가능합니다.' },
-    { id:'stretch_full', name:'전신 스트레칭', cat:'유연성', nfaCat:'flex', movementType:'stretch', impact:1, bmiFit:['under','normal','over','obese'], legIntensive:false, desc:'관절 가동범위 유지를 위한 기초 스트레칭. 거의 모든 장애유형·체형에 매일 병행을 권장합니다.' },
-    { id:'stretch_seated', name:'좌식(휠체어) 스트레칭', cat:'유연성', nfaCat:'flex', movementType:'stretch', impact:1, bmiFit:['under','normal','over','obese'], legIntensive:false, desc:'앉은 자세에서 상체·어깨·목 위주로 진행해 휠체어 사용자·하지마비 학생에게 우선 추천됩니다.' },
-    { id:'foam_roll', name:'폼롤러 이완', cat:'유연성', nfaCat:'flex', movementType:'stretch', impact:1, bmiFit:['under','normal','over','obese'], legIntensive:false, desc:'근막 이완으로 운동 전후 회복을 돕는 저강도 유연성 활동.' },
-    { id:'band_stretch', name:'밴드 스트레칭', cat:'유연성', nfaCat:'flex', movementType:'stretch', impact:1, bmiFit:['under','normal','over','obese'], legIntensive:false, desc:'탄력밴드를 이용해 어깨·햄스트링 가동범위를 늘리는 보조 스트레칭.' }
+    { id:'walk', name:'걷기', cat:'유산소', nfaCat:'cardio', movementType:'cardio', impact:1, bmiFit:['under','normal','over','obese'], legIntensive:true, needsFacility:false, painTags:['knee','ankle','hip'], desc:'관절 부담이 가장 적은 기초 유산소 운동. 모든 체성분·대부분의 장애유형에 우선 추천됩니다.' },
+    { id:'tt', name:'탁구', cat:'라켓', nfaCat:'cardio', movementType:'racket', impact:1, bmiFit:['normal','over'], legIntensive:false, needsFacility:true, painTags:['shoulder','elbow_wrist'], desc:'좁은 반경에서 반사신경·손목 협응을 훈련하는 저충격 라켓 종목.' },
+    { id:'jog', name:'조깅', cat:'유산소', nfaCat:'cardio', movementType:'cardio', impact:2, bmiFit:['under','normal'], legIntensive:true, needsFacility:false, painTags:['knee','ankle','hip'], desc:'심폐지구력 향상에 효과적이나 무릎·발목에 걷기보다 부담이 큽니다.' },
+    { id:'tennis', name:'테니스', cat:'라켓', nfaCat:'cardio', movementType:'racket', impact:2, bmiFit:['normal'], legIntensive:true, needsFacility:true, painTags:['shoulder','elbow_wrist','knee','ankle'], desc:'순발력과 전신 협응을 함께 쓰는 중~고강도 라켓 스포츠.' },
+    { id:'racquetball', name:'라켓볼', cat:'라켓', nfaCat:'cardio', movementType:'racket', impact:3, bmiFit:['normal'], legIntensive:true, needsFacility:true, painTags:['shoulder','elbow_wrist','knee','ankle'], desc:'실내에서 빠른 방향전환이 많은 고강도 라켓 종목.' },
+    { id:'taekwondo', name:'태권도', cat:'무도', nfaCat:'cardio', movementType:'martial', impact:2, bmiFit:['normal','over'], legIntensive:true, needsFacility:true, painTags:['knee','ankle','hip','back'], desc:'품새 중심으로 접근하면 균형감각·유연성 훈련에 좋습니다.' },
+    { id:'pushup', name:'팔굽혀펴기', cat:'근력', nfaCat:'strength', movementType:'pushup_family', impact:1, bmiFit:['under','normal','over'], legIntensive:false, needsFacility:false, painTags:['shoulder','elbow_wrist'], aiAnalysis:true, desc:'상체·코어 근력 기초 종목. 무릎 대고 하는 변형으로 강도 조절이 쉽습니다.' },
+    { id:'situp', name:'윗몸일으키기', cat:'근력', nfaCat:'strength', movementType:'situp', impact:1, bmiFit:['under','normal','over'], legIntensive:false, needsFacility:false, painTags:['back','neck'], desc:'복근 중심 근력 운동. 목·허리 통증이 있으면 크런치로 대체를 권장합니다.' },
+    { id:'bike', name:'자전거', cat:'유산소', nfaCat:'cardio', movementType:'cardio', impact:1, bmiFit:['normal','over','obese'], legIntensive:true, needsFacility:false, painTags:['knee','ankle'], desc:'체중 부하 없이 하지 근력·심폐지구력을 훈련할 수 있는 저충격 종목.' },
+    { id:'soccer', name:'축구', cat:'구기', nfaCat:'cardio', movementType:'ballgame', impact:3, bmiFit:['normal'], legIntensive:true, needsFacility:true, painTags:['knee','ankle','hip'], desc:'전신 지구력과 순발력이 필요한 고강도 팀 스포츠.' },
+    { id:'squash', name:'스쿼시', cat:'라켓', nfaCat:'cardio', movementType:'racket', impact:3, bmiFit:['normal'], legIntensive:true, needsFacility:true, painTags:['shoulder','elbow_wrist','knee','ankle'], desc:'짧은 시간 고강도로 체력을 소모하는 라켓 종목.' },
+    { id:'weight', name:'웨이트트레이닝', cat:'근력', nfaCat:'strength', movementType:'strength', impact:2, bmiFit:['under','normal','over'], legIntensive:false, needsFacility:true, painTags:['shoulder','elbow_wrist','back','knee'], desc:'부위별 근력·근비대를 목표로 하는 저항운동. 초반엔 맨몸·저중량 권장.' },
+    { id:'swim', name:'수영', cat:'유산소', nfaCat:'cardio', movementType:'cardio', impact:1, bmiFit:['under','normal','over','obese'], legIntensive:false, needsFacility:true, painTags:['shoulder'], desc:'부력 덕분에 관절 부담이 가장 적어 지체장애·비만 체형 모두에 우선 추천됩니다.' },
+    { id:'kendo', name:'검도', cat:'무도', nfaCat:'cardio', movementType:'martial', impact:2, bmiFit:['normal'], legIntensive:true, needsFacility:true, painTags:['shoulder','elbow_wrist','knee','ankle','back'], desc:'집중력과 순발력, 하체 안정성을 함께 훈련하는 무도 종목.' },
+    { id:'basketball', name:'농구', cat:'구기', nfaCat:'cardio', movementType:'ballgame', impact:3, bmiFit:['normal'], legIntensive:true, needsFacility:true, painTags:['knee','ankle','shoulder'], desc:'점프·방향전환이 많아 하지 부담이 큰 고강도 구기 종목.' },
+    { id:'dumbbell', name:'덤벨체조', cat:'근력', nfaCat:'strength', movementType:'strength', impact:1, bmiFit:['under','normal','over','obese'], legIntensive:false, needsFacility:false, painTags:['shoulder','elbow_wrist'], desc:'가벼운 중량으로 전신을 순환시키는 저강도 근력 운동. 입문자·장애유형 폭넓게 적합.' },
+    { id:'hiking', name:'등산', cat:'유산소', nfaCat:'cardio', movementType:'cardio', impact:2, bmiFit:['normal','over'], legIntensive:true, needsFacility:false, painTags:['knee','ankle','hip'], desc:'경사와 지형 변화로 하지 근력과 균형감각을 함께 훈련합니다.' },
+    { id:'gateball', name:'게이트볼', cat:'구기', nfaCat:'cardio', movementType:'ballgame', impact:1, bmiFit:['under','normal','over','obese'], legIntensive:false, needsFacility:true, painTags:['shoulder'], desc:'이동 반경이 작고 접촉이 없어 이동 제한이 있어도 접근하기 쉬운 종목.' },
+    { id:'jumprope', name:'줄넘기', cat:'유산소', nfaCat:'cardio', movementType:'cardio', impact:3, bmiFit:['normal'], legIntensive:true, needsFacility:false, painTags:['knee','ankle'], desc:'짧은 시간 고강도지만 발목·무릎에 충격이 큰 편입니다.' },
+    { id:'band', name:'탄력밴드', cat:'근력', nfaCat:'strength', movementType:'strength', impact:1, bmiFit:['under','normal','over','obese'], legIntensive:false, needsFacility:false, painTags:['shoulder','elbow_wrist'], desc:'저항 강도를 밴드 색상으로 세밀하게 조절할 수 있어 장애유형 적용 폭이 가장 넓습니다.' },
+    { id:'aerobic', name:'에어로빅', cat:'유산소', nfaCat:'cardio', movementType:'cardio', impact:2, bmiFit:['normal','over'], legIntensive:true, needsFacility:false, painTags:['knee','ankle'], desc:'음악에 맞춘 전신 유산소 운동으로 리듬감·협응력을 함께 기릅니다.' },
+    { id:'badminton', name:'배드민턴', cat:'라켓', nfaCat:'cardio', movementType:'racket', impact:2, bmiFit:['normal','over'], legIntensive:true, needsFacility:true, painTags:['shoulder','elbow_wrist','knee','ankle'], desc:'순발력과 어깨·손목 협응이 필요한 중강도 라켓 종목.' },
+    { id:'golf', name:'골프', cat:'기타', nfaCat:'cardio', movementType:'other', impact:1, bmiFit:['normal','over','obese'], legIntensive:false, needsFacility:true, painTags:['back','shoulder'], desc:'카트 이동이 가능해 이동 제한이 있어도 접근하기 쉬운 저강도 정밀 종목.' },
+    { id:'sit2stand', name:'앉았다 일어나기', cat:'기능성 근력', nfaCat:'strength', movementType:'squat_family', impact:1, bmiFit:['under','normal','over','obese'], legIntensive:true, needsFacility:false, painTags:['knee','hip','back'], aiAnalysis:true, desc:'하지 기능평가·재활에 자주 쓰이는 기초 기능성 운동. 실시간 무릎각도 분석이 가능합니다.' },
+    { id:'stretch_full', name:'전신 스트레칭', cat:'유연성', nfaCat:'flex', movementType:'stretch', impact:1, bmiFit:['under','normal','over','obese'], legIntensive:false, needsFacility:false, painTags:[], desc:'관절 가동범위 유지를 위한 기초 스트레칭. 거의 모든 장애유형·체형에 매일 병행을 권장합니다.' },
+    { id:'stretch_seated', name:'좌식(휠체어) 스트레칭', cat:'유연성', nfaCat:'flex', movementType:'stretch', impact:1, bmiFit:['under','normal','over','obese'], legIntensive:false, needsFacility:false, painTags:[], desc:'앉은 자세에서 상체·어깨·목 위주로 진행해 휠체어 사용자·하지마비 학생에게 우선 추천됩니다.' },
+    { id:'foam_roll', name:'폼롤러 이완', cat:'유연성', nfaCat:'flex', movementType:'stretch', impact:1, bmiFit:['under','normal','over','obese'], legIntensive:false, needsFacility:false, painTags:[], desc:'근막 이완으로 운동 전후 회복을 돕는 저강도 유연성 활동.' },
+    { id:'band_stretch', name:'밴드 스트레칭', cat:'유연성', nfaCat:'flex', movementType:'stretch', impact:1, bmiFit:['under','normal','over','obese'], legIntensive:false, needsFacility:false, painTags:[], desc:'탄력밴드를 이용해 어깨·햄스트링 가동범위를 늘리는 보조 스트레칭.' }
   ];
+
+  const PAIN_AREAS = [
+    { key:'neck', label:'목' },
+    { key:'shoulder', label:'어깨' },
+    { key:'elbow_wrist', label:'팔꿈치·손목' },
+    { key:'back', label:'허리' },
+    { key:'hip', label:'골반·엉덩이' },
+    { key:'knee', label:'무릎' },
+    { key:'ankle', label:'발목·발' }
+  ];
+
+  const VENUES = [
+    { key:'facility', label:'시설에서', desc:'장애인체육센터·헬스장 등 전용 공간과 기구를 활용할 수 있어요.' },
+    { key:'home', label:'집에서', desc:'이동이 어렵거나 시설 접근이 힘든 경우. 맨몸·소도구 위주로 구성돼요.' }
+  ];
+
 
   let profile = null;
   let disKey = 'none';
@@ -592,6 +694,9 @@
   let editedPlan = null;
   let finalUseEdited = false;
   let currentDisGridCatKey = null;
+  let venue = 'facility';
+  let painAreas = [];
+  let calViewYear, calViewMonth;
 
   function bmiCategory(bmi){
     if(bmi < 18.5) return 'under';
@@ -758,7 +863,8 @@
       </div>`).join('');
   }
 
-  function scoreExercise(ex, prof, dis){
+  function scoreExercise(ex, prof, dis, extra){
+    extra = extra || {};
     let score = 0;
     if(prof.bmi){
       const bc = bmiCategory(prof.bmi);
@@ -772,6 +878,15 @@
     if(prof.age < 14 && ex.impact===3) score -= 1;
     if(dis && dis.cat!=='none' && ex.impact===1) score += 1;
     if(ex.nfaCat==='flex') score += 1;
+    if(extra.assist==='wheelchair'){
+      if(ex.legIntensive) score -= 4;
+      else score += 2;
+    }
+    if(extra.venue==='home' && ex.needsFacility) score -= 3;
+    if(extra.painAreas && extra.painAreas.length && ex.painTags){
+      const hit = ex.painTags.some(t=>extra.painAreas.includes(t));
+      if(hit) score -= 5;
+    }
     return score;
   }
 
@@ -780,10 +895,49 @@
     const savedDis = await sGet('omt:disability', false);
     const savedExtra = await sGet('omt:disExtra', false);
     const savedFb = await sGet('omt:fblevel', false);
+    const savedVenue = await sGet('omt:venue', false);
+    const savedPain = await sGet('omt:painareas', false);
     if(savedDis) disKey = savedDis;
     if(savedExtra){ try{ disExtra = JSON.parse(savedExtra); }catch(e){} }
     if(savedFb) fbLevel = parseInt(savedFb,10) || 3;
+    if(savedVenue) venue = savedVenue;
+    if(savedPain){ try{ painAreas = JSON.parse(savedPain); }catch(e){ painAreas = []; } }
     if(savedProfile){ try{ profile = JSON.parse(savedProfile); }catch(e){} }
+  }
+
+  function renderVenueGrid(){
+    const grid = document.getElementById('venueGrid');
+    if(!grid) return;
+    grid.innerHTML = VENUES.map(v=>`
+      <div class="venue-card ${venue===v.key?'sel':''}" data-v="${v.key}">
+        <b>${v.label}</b><span>${v.desc}</span>
+      </div>`).join('');
+    grid.querySelectorAll('.venue-card').forEach(c=>{
+      c.addEventListener('click', async ()=>{
+        venue = c.dataset.v;
+        await sSet('omt:venue', venue, false);
+        renderVenueGrid();
+        renderExerciseList();
+      });
+    });
+  }
+
+  function renderPainGrid(){
+    const grid = document.getElementById('painGrid');
+    if(!grid) return;
+    grid.innerHTML = PAIN_AREAS.map(p=>`
+      <div class="pain-opt ${painAreas.includes(p.key)?'sel':''}" data-k="${p.key}">${p.label}</div>`).join('');
+    grid.querySelectorAll('.pain-opt').forEach(el=>{
+      el.addEventListener('click', async ()=>{
+        const k = el.dataset.k;
+        if(painAreas.includes(k)) painAreas = painAreas.filter(x=>x!==k);
+        else painAreas = [...painAreas, k];
+        await sSet('omt:painareas', JSON.stringify(painAreas), false);
+        renderPainGrid();
+        editedPlan = null;
+        renderPrescriptionTab();
+      });
+    });
   }
 
   async function renderExerciseList(){
@@ -791,6 +945,7 @@
     const listEl = document.getElementById('exList');
     const noteEl = document.getElementById('excludeNote');
     await loadCoreState();
+    renderVenueGrid();
 
     if(!profile){
       hint.textContent = '먼저 [01] 탭에서 체성분과 장애유형을 저장해주세요.';
@@ -799,12 +954,27 @@
       return;
     }
     const dis = DISABILITY[disKey] || DISABILITY.none;
-    hint.innerHTML = `<b>${profile.name}</b>님 (${profile.gender}, ${profile.age}세${profile.bmi?`, BMI ${profile.bmi.toFixed(1)}·${bmiLabel(bmiCategory(profile.bmi))}`:''}) · 장애유형: <b>${dis.label}</b>${disExtra.assist!=='none'?` · 보조기기: ${({wheelchair:'휠체어',crutches:'목발',brace:'보조기',prosthetic:'의족/의수'})[disExtra.assist]}`:''} 기준 추천입니다.`;
+    const isWheelchair = disExtra.assist==='wheelchair';
+    hint.innerHTML = `<b>${profile.name}</b>님 (${profile.gender}, ${profile.age}세${profile.bmi?`, BMI ${profile.bmi.toFixed(1)}·${bmiLabel(bmiCategory(profile.bmi))}`:''}) · 장애유형: <b>${dis.label}</b>${disExtra.assist!=='none'?` · 보조기기: ${({wheelchair:'휠체어',crutches:'목발',brace:'보조기',prosthetic:'의족/의수'})[disExtra.assist]}`:''} · 장소: <b>${venue==='home'?'집':'시설'}</b>${painAreas.length?` · 오늘 통증: ${painAreas.map(k=>(PAIN_AREAS.find(p=>p.key===k)||{}).label).join(', ')}`:''} 기준 추천입니다.`;
 
-    const excluded = EXERCISES.filter(ex => dis.excludeMove.includes(ex.movementType));
-    const available = EXERCISES.filter(ex => !dis.excludeMove.includes(ex.movementType))
-      .map(ex => ({ ex, score: scoreExercise(ex, profile, dis) }))
+    const byDis = ex => dis.excludeMove.includes(ex.movementType);
+    const byWheelchair = ex => isWheelchair && ex.legIntensive;
+    const byVenue = ex => venue==='home' && ex.needsFacility;
+    const byPain = ex => painAreas.length && ex.painTags && ex.painTags.some(t=>painAreas.includes(t));
+
+    const excludedDis = EXERCISES.filter(byDis);
+    const excludedWheelchair = EXERCISES.filter(ex=>!byDis(ex) && byWheelchair(ex));
+    const excludedVenue = EXERCISES.filter(ex=>!byDis(ex) && !byWheelchair(ex) && byVenue(ex));
+    const excludedPain = EXERCISES.filter(ex=>!byDis(ex) && !byWheelchair(ex) && !byVenue(ex) && byPain(ex));
+
+    const available = EXERCISES.filter(ex => !byDis(ex) && !byWheelchair(ex) && !byVenue(ex) && !byPain(ex))
+      .map(ex => ({ ex, score: scoreExercise(ex, profile, dis, {assist:disExtra.assist, venue, painAreas}) }))
       .sort((a,b)=> b.score - a.score);
+
+    if(pickedExId && !available.some(a=>a.ex.id===pickedExId)){
+      pickedExId = null;
+      editedPlan = null;
+    }
 
     listEl.innerHTML = available.map(({ex,score})=>`
       <div class="ex-card ${pickedExId===ex.id?'picked':''}" data-id="${ex.id}">
@@ -817,6 +987,7 @@
           <span class="chip ${nfaCatClass(ex.nfaCat)}">${nfaCatLabel(ex.nfaCat)}</span>
           <span class="chip">${ex.cat}</span>
           <span class="chip">충격도 ${'●'.repeat(ex.impact)}${'○'.repeat(3-ex.impact)}</span>
+          <span class="chip">${ex.needsFacility?'시설 필요':'집에서도 가능'}</span>
         </div>
       </div>`).join('');
 
@@ -829,9 +1000,14 @@
       });
     });
 
-    if(excluded.length){
+    const noteLines = [];
+    if(excludedDis.length) noteLines.push(`⚠ <b>${dis.label}</b> 특성상 자동 제외: ${excludedDis.map(e=>e.name).join(', ')}`);
+    if(excludedWheelchair.length) noteLines.push(`♿ 휠체어 사용자로 설정되어 하지 개입이 큰 종목 자동 제외(대체·상체 위주 우선): ${excludedWheelchair.map(e=>e.name).join(', ')}`);
+    if(excludedVenue.length) noteLines.push(`🏠 '집에서' 선택으로 전용 시설·기구가 필요한 종목 제외: ${excludedVenue.map(e=>e.name).join(', ')}`);
+    if(excludedPain.length) noteLines.push(`🩹 오늘 체크한 통증 부위와 관련해 제외: ${excludedPain.map(e=>e.name).join(', ')}`);
+    if(noteLines.length){
       noteEl.style.display = 'block';
-      noteEl.innerHTML = `⚠ <b>${dis.label}</b> 특성상 자동 제외된 종목: ${excluded.map(e=>e.name).join(', ')} — 대신 저충격·대체 가능 종목(수영·탄력밴드·게이트볼·좌식 스트레칭 등)이 상단에 우선 배치되었습니다.`;
+      noteEl.innerHTML = noteLines.join('<br>') + '<br>대신 저충격·대체 가능 종목(수영·탄력밴드·좌식 스트레칭 등)이 상단에 우선 배치되었습니다.';
     } else {
       noteEl.style.display = 'none';
     }
@@ -863,10 +1039,17 @@
   function currentExercise(){ return EXERCISES.find(e=>e.id===pickedExId); }
   function currentDis(){ return DISABILITY[disKey] || DISABILITY.none; }
 
-  function buildSuggestedPlan(ex, dis, lvl){
+  function buildSuggestedPlan(ex, dis, lvl, painAreasArg){
+    painAreasArg = painAreasArg || [];
+    let effectiveEx = ex;
+    let painSwapped = false;
+    if(painAreasArg.length && ex.painTags && ex.painTags.some(t=>painAreasArg.includes(t))){
+      const alt = EXERCISES.find(e=> dis.excludeMove.includes('squat_family') ? e.id==='stretch_seated' : e.id==='stretch_full');
+      if(alt){ effectiveEx = alt; painSwapped = true; }
+    }
     const freqMap = {1:2, 2:3, 3:4};
     const setsMap = {1:2, 2:3, 3:4};
-    const repsBase = ex.movementType==='pushup_family' ? 8 : (ex.movementType==='squat_family' ? 10 : 12);
+    const repsBase = effectiveEx.movementType==='pushup_family' ? 8 : (effectiveEx.movementType==='squat_family' ? 10 : 12);
     const repsAdjust = dis.romAdjust>0 ? -2 : 0;
     const reps = Math.max(5, repsBase + (lvl-2)*3 + repsAdjust);
     const freq = freqMap[lvl];
@@ -878,14 +1061,14 @@
     const trainDays = [0,2,4,5].slice(0, freq);
     for(let i=0;i<7;i++){
       if(trainDays.includes(i)){
-        days.push({ day:WEEKDAYS[i], main:ex.name, sets, reps, rest:restSec, note:`목표 ${sets}세트 × ${reps}회, 세트간 휴식 ${restSec}초` });
+        days.push({ day:WEEKDAYS[i], main:effectiveEx.name, sets, reps, rest:restSec, note:`목표 ${sets}세트 × ${reps}회, 세트간 휴식 ${restSec}초${painSwapped?' · 통증 부위로 안전 종목 대체':''}` });
       } else if(i===6){
         days.push({ day:WEEKDAYS[i], main:'완전 휴식', sets:'-', reps:'-', rest:'-', note:'회복일' });
       } else {
         days.push({ day:WEEKDAYS[i], main:flexEx ? flexEx.name : '가벼운 스트레칭', sets:1, reps:'10분', rest:'-', note:'가동범위 유지 · 회복 촉진' });
       }
     }
-    return { exName:ex.name, freq, sets, reps, restSec, days, level:lvl };
+    return { exName:effectiveEx.name, origExName:ex.name, painSwapped, freq, sets, reps, restSec, days, level:lvl };
   }
 
   function renderPlanTable(plan, editable){
@@ -918,11 +1101,13 @@
       return;
     }
     hint.innerHTML = `선택 종목: <b>${ex.name}</b> · 장애유형: <b>${dis.label}</b> 기준 FITT 처방입니다.`;
-    const plan = buildSuggestedPlan(ex, dis, prescLevel);
+    const plan = buildSuggestedPlan(ex, dis, prescLevel, painAreas);
+    const painNote = plan.painSwapped ? `<div class="alt-note">🩹 오늘 체크된 통증 부위로 인해 <b>${plan.origExName}</b> 대신 <b>${plan.exName}</b>(으)로 안전하게 대체했습니다.</div>` : '';
     suggestedArea.innerHTML = `
+      ${painNote}
       <div class="plan-box">
         <div class="pt">빈도(F) · 강도(I) · 시간(T) · 형태(Type)</div>
-        <div class="pd">주 <b>${plan.freq}회</b>, 세트당 <b>${plan.reps}회</b> × <b>${plan.sets}세트</b>, 세트간 휴식 <b>${plan.restSec}초</b> — ${ex.name} 중심.</div>
+        <div class="pd">주 <b>${plan.freq}회</b>, 세트당 <b>${plan.reps}회</b> × <b>${plan.sets}세트</b>, 세트간 휴식 <b>${plan.restSec}초</b> — ${plan.exName} 중심.</div>
       </div>
       ${renderPlanTable(plan, false)}`;
 
@@ -960,6 +1145,7 @@
   let poseLandmarker = null, poseLoading = null;
   let video, canvas, ctx, rafId = null, camStream = null;
   let repCount = 0, phase = 'up', lastVoiceAt = 0;
+  let lastCenterFbAt = 0, lastCenterFbText = '';
   let inputMode = 'cam';
   let legMoveBuf = [], armMoveBuf = [];
   let autoUpperMode = false;
@@ -1052,8 +1238,14 @@
   document.getElementById('videoUploadBox').addEventListener('click', ()=>{
     document.getElementById('videoFile').click();
   });
-  document.getElementById('videoFile').addEventListener('change', async (e)=>{
+  document.getElementById('videoFile').addEventListener('change', (e)=>{
     if(!e.target.files || !e.target.files[0]) return;
+    const ex = currentExercise(); if(!ex || !ex.aiAnalysis) return;
+    const file = e.target.files[0];
+    showStartGuide(ex, currentDis(), disExtra, ()=>actuallyStartUpload(file));
+  });
+
+  async function actuallyStartUpload(file){
     const ex = currentExercise(); if(!ex || !ex.aiAnalysis) return;
     const statusEl = document.getElementById('camStatus');
     try{
@@ -1063,7 +1255,7 @@
       canvas = document.getElementById('camCanvas');
       ctx = canvas.getContext('2d');
       video.srcObject = null;
-      video.src = URL.createObjectURL(e.target.files[0]);
+      video.src = URL.createObjectURL(file);
       video.muted = false;
       video.loop = false;
       await video.play();
@@ -1079,7 +1271,7 @@
       statusEl.textContent = '영상을 불러오지 못했습니다: ' + (err && err.message ? err.message : err);
       statusEl.className = 'status-msg show status-err';
     }
-  });
+  }
 
   function setupCoachTab(){
     const ex = currentExercise();
@@ -1103,7 +1295,77 @@
     document.getElementById('critList').innerHTML = crits.map(c=>`<div class="crit-item" data-key="${c.key}"><span class="dot"></span><span class="tx">${c.label}</span></div>`).join('');
   }
 
-  document.getElementById('startCamBtn').addEventListener('click', async ()=>{
+  let pendingStartAction = null;
+
+  function stickFigureSvg(kind){
+    if(kind==='seated'){
+      return `<svg width="120" height="120" viewBox="0 0 120 120"><circle cx="60" cy="26" r="12" fill="var(--teal)"/>
+        <rect x="50" y="38" width="20" height="34" rx="6" fill="var(--teal)"/>
+        <rect x="30" y="72" width="60" height="10" rx="5" fill="var(--ink-faint)"/>
+        <circle cx="30" cy="90" r="9" fill="var(--ink-faint)"/><circle cx="90" cy="90" r="9" fill="var(--ink-faint)"/>
+        <line x1="50" y1="46" x2="30" y2="60" stroke="var(--teal)" stroke-width="7" stroke-linecap="round"/>
+        <line x1="70" y1="46" x2="90" y2="60" stroke="var(--teal)" stroke-width="7" stroke-linecap="round"/></svg>`;
+    }
+    if(kind==='squat'){
+      return `<svg width="120" height="120" viewBox="0 0 120 120"><circle cx="60" cy="20" r="11" fill="var(--teal)"/>
+        <line x1="60" y1="31" x2="60" y2="62" stroke="var(--teal)" stroke-width="8" stroke-linecap="round"/>
+        <line x1="60" y1="62" x2="42" y2="90" stroke="var(--teal)" stroke-width="8" stroke-linecap="round"/>
+        <line x1="60" y1="62" x2="78" y2="90" stroke="var(--teal)" stroke-width="8" stroke-linecap="round"/>
+        <line x1="42" y1="90" x2="42" y2="108" stroke="var(--ink-faint)" stroke-width="8" stroke-linecap="round"/>
+        <line x1="78" y1="90" x2="78" y2="108" stroke="var(--ink-faint)" stroke-width="8" stroke-linecap="round"/>
+        <line x1="60" y1="40" x2="38" y2="55" stroke="var(--teal)" stroke-width="6" stroke-linecap="round"/>
+        <line x1="60" y1="40" x2="82" y2="55" stroke="var(--teal)" stroke-width="6" stroke-linecap="round"/></svg>`;
+    }
+    return `<svg width="120" height="120" viewBox="0 0 120 120"><circle cx="60" cy="24" r="11" fill="var(--teal)"/>
+      <line x1="60" y1="35" x2="60" y2="70" stroke="var(--teal)" stroke-width="8" stroke-linecap="round"/>
+      <line x1="60" y1="42" x2="30" y2="60" stroke="var(--teal)" stroke-width="7" stroke-linecap="round"/>
+      <line x1="60" y1="42" x2="90" y2="60" stroke="var(--teal)" stroke-width="7" stroke-linecap="round"/>
+      <line x1="60" y1="70" x2="42" y2="100" stroke="var(--ink-faint)" stroke-width="7" stroke-linecap="round"/>
+      <line x1="60" y1="70" x2="78" y2="100" stroke="var(--ink-faint)" stroke-width="7" stroke-linecap="round"/></svg>`;
+  }
+
+  function buildGuideContent(ex, dis, extra){
+    const isSquat = ex.movementType==='squat_family';
+    const wheelchair = extra && extra.assist==='wheelchair';
+    const illust = stickFigureSvg(wheelchair ? 'seated' : (isSquat ? 'squat' : 'pushup'));
+    const cautions = [];
+    cautions.push(`<b>기본 자세</b> — ${isSquat ? '무릎이 발끝을 넘지 않게, 등을 편 채로 천천히 앉았다 일어나세요.' : '손은 어깨 너비로 짚고, 허리가 꺾이지 않게 몸을 일자로 유지하세요.'}`);
+    if(dis.romAdjust>0) cautions.push(`<b>가동범위</b> — "${dis.label}" 특성상 목표 각도를 완화했습니다. 통증이 느껴지면 무리하지 말고 가능한 범위까지만 움직이세요.`);
+    if(wheelchair) cautions.push(`<b>휠체어</b> — 브레이크를 반드시 잠그고, 상체 중심으로 반복하며 좌우 균형에 신경 써주세요.`);
+    if(dis.feedback==='voice') cautions.push(`<b>음성 안내</b> — 화면 대신 음성으로 자세를 안내합니다. 소리가 잘 들리는 환경에서 진행하세요.`);
+    if(dis.feedback==='visual') cautions.push(`<b>시각 안내</b> — 음성 없이 화면의 색상·문구로만 안내합니다. 화면이 잘 보이는 곳에서 진행하세요.`);
+    if(dis.feedback==='simple') cautions.push(`<b>간단 안내</b> — 짧고 반복적인 문구로 안내하며, 목표 횟수를 낮게 잡습니다.`);
+    if(dis.feedback==='gentle') cautions.push(`<b>완만한 안내</b> — 수치 경쟁보다 자기 기록 개선에 초점을 맞춰 부드럽게 안내합니다.`);
+    if(dis.asymTolerance>=18) cautions.push(`<b>좌우 비대칭</b> — 허용치를 ±${dis.asymTolerance}°로 넓게 설정했습니다. 약한 쪽을 무리해서 따라잡으려 하지 마세요.`);
+    cautions.push(`<b>중단 기준</b> — 통증·어지러움·호흡곤란이 느껴지면 즉시 멈추고 휴식하세요.`);
+    return { illust, cautions };
+  }
+
+  function showStartGuide(ex, dis, extra, actionFn){
+    const g = buildGuideContent(ex, dis, extra);
+    document.getElementById('guideTitle').textContent = `시작 전 자세 가이드 — ${ex.name}`;
+    document.getElementById('guideIllust').innerHTML = g.illust;
+    document.getElementById('guideCautions').innerHTML = g.cautions.map(c=>`<li>${c}</li>`).join('');
+    pendingStartAction = actionFn;
+    document.getElementById('startGuideModal').classList.add('show');
+  }
+  document.getElementById('guideOkBtn').addEventListener('click', ()=>{
+    document.getElementById('startGuideModal').classList.remove('show');
+    const fn = pendingStartAction; pendingStartAction = null;
+    if(fn) fn();
+  });
+  document.getElementById('guideCancelBtn').addEventListener('click', ()=>{
+    document.getElementById('startGuideModal').classList.remove('show');
+    pendingStartAction = null;
+  });
+
+  document.getElementById('startCamBtn').addEventListener('click', ()=>{
+    const ex = currentExercise();
+    if(!ex) return;
+    showStartGuide(ex, currentDis(), disExtra, actuallyStartCam);
+  });
+
+  async function actuallyStartCam(){
     const ex = currentExercise();
     if(!ex) return;
     const statusEl = document.getElementById('camStatus');
@@ -1134,7 +1396,7 @@
       statusEl.className = 'status-msg show status-err';
       startBtn.disabled = false;
     }
-  });
+  }
 
   document.getElementById('stopCamBtn').addEventListener('click', stopCam);
   function stopCam(){
@@ -1144,10 +1406,13 @@
     document.getElementById('camWrap').classList.remove('show');
     document.getElementById('startCamBtn').disabled = false;
     document.getElementById('stopCamBtn').disabled = true;
+    const fb = document.getElementById('centerFb'); if(fb){ fb.classList.remove('show'); }
   }
   document.getElementById('resetRepBtn').addEventListener('click', ()=>{
     repCount = 0; phase = 'up'; legMoveBuf = []; armMoveBuf = []; autoUpperMode = false;
     document.getElementById('pillRep').textContent = '0회';
+    lastCenterFbText = '';
+    const fb = document.getElementById('centerFb'); if(fb){ fb.classList.remove('show'); }
   });
 
   function loop(){
@@ -1189,6 +1454,21 @@
         }
       }
       if(autoUpperMode) useMode = 'pushup_family';
+    } else if(dis.armAuto && legMoveBuf.length>=45){
+      const legRange = Math.max(...legMoveBuf) - Math.min(...legMoveBuf);
+      const armRange = Math.max(...armMoveBuf) - Math.min(...armMoveBuf);
+      const shouldAuto = armRange < 0.02 && legRange > 0.03;
+      if(shouldAuto !== autoUpperMode){
+        autoUpperMode = shouldAuto;
+        const noteEl = document.getElementById('autoNote');
+        if(autoUpperMode){
+          noteEl.classList.add('show');
+          noteEl.textContent = `자동 판단: 상지 움직임이 거의 없고 하지 반복이 감지되어, "${dis.label}" 특성에 맞춰 하체(무릎) 각도 기준으로 자동 전환해 횟수를 세고 자세를 분석합니다.`;
+        } else {
+          noteEl.classList.remove('show');
+        }
+      }
+      if(autoUpperMode) useMode = 'squat_family';
     }
 
     let angleL, angleR, jointLabel;
@@ -1263,6 +1543,8 @@
     msgEl.textContent = msg; msgEl.className = 'coach-msg ' + (good?'good':'bad');
     subEl.textContent = sub;
 
+    updateCenterFeedback({ asymBad, match, phase, jointLabel, good, angleL, angleR });
+
     document.getElementById('angleTiles').innerHTML = `
       <div class="angle-tile"><div class="k">왼쪽 ${jointLabel}</div><div class="v">${angleL.toFixed(0)}°</div></div>
       <div class="angle-tile"><div class="k">오른쪽 ${jointLabel}</div><div class="v">${angleR.toFixed(0)}°</div></div>
@@ -1278,15 +1560,54 @@
     }
   }
 
+  function shortCenterPhrase({asymBad, match, phase, jointLabel, angleL, angleR}){
+    const limbWord = jointLabel==='무릎' ? '무릎' : '팔';
+    if(asymBad){
+      const weaker = angleL > angleR ? '왼쪽' : '오른쪽';
+      return `${weaker} ${limbWord}을(를) 조금 더 움직여 균형을 맞춰주세요.`;
+    }
+    if(match >= 80) return phase==='down' ? '좋아요, 이 자세를 잠깐 유지하세요.' : '아주 좋아요! 천천히 돌아오세요.';
+    if(phase==='up') return jointLabel==='무릎' ? '무릎을 조금 더 굽혀주세요.' : '팔을 조금 더 당겨주세요.';
+    return '속도를 조금만 늦춰주세요.';
+  }
+
+  function updateCenterFeedback({asymBad, match, phase, jointLabel, good, angleL, angleR}){
+    const el = document.getElementById('centerFb');
+    if(!el) return;
+    const now = performance.now();
+    const text = shortCenterPhrase({asymBad, match, phase, jointLabel, angleL, angleR});
+    if(text===lastCenterFbText && now - lastCenterFbAt < 1200) return;
+    lastCenterFbText = text; lastCenterFbAt = now;
+    el.textContent = text;
+    el.className = 'center-fb show ' + (asymBad ? 'bad' : (good ? 'good' : ''));
+  }
+
+  function dateKeyOf(ts){
+    const d = new Date(ts);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+
   document.getElementById('saveSessionBtn').addEventListener('click', async ()=>{
     const ex = currentExercise(); if(!ex) return;
     const critCount = Object.keys(lastCritPass).length;
     const critPassCount = Object.values(lastCritPass).filter(Boolean).length;
-    const session = { exId: ex.id, exName: ex.name, disKey, reps: repCount, autoUpperMode, critPassRatio: critCount? Math.round(critPassCount/critCount*100) : null, savedAt: Date.now() };
-    const key = 'session:' + Date.now();
+    const savedAt = Date.now();
+    const session = { exId: ex.id, exName: ex.name, disKey, venue, painAreas: painAreas.slice(), reps: repCount, autoUpperMode, critPassRatio: critCount? Math.round(critPassCount/critCount*100) : null, savedAt };
+    const key = 'session:' + savedAt;
     await sSet(key, JSON.stringify(session), false);
+
+    const dk = dateKeyOf(savedAt);
+    const dailyKey = 'dailylog:' + dk;
+    let daily = { date: dk, exNames: [], painAreas: [], venue };
+    const rawDaily = await sGet(dailyKey, false);
+    if(rawDaily){ try{ daily = JSON.parse(rawDaily); }catch(e){} }
+    if(!daily.exNames.includes(ex.name)) daily.exNames.push(ex.name);
+    painAreas.forEach(p=>{ if(!daily.painAreas.includes(p)) daily.painAreas.push(p); });
+    daily.venue = venue;
+    await sSet(dailyKey, JSON.stringify(daily), false);
+
     const st = document.getElementById('camStatus');
-    st.textContent = `기록 저장됨 — ${ex.name} ${repCount}회${autoUpperMode?' (자동 상체모드)':''}`;
+    st.textContent = `기록 저장됨 — ${ex.name} ${repCount}회${autoUpperMode?' (자동 전환모드)':''}`;
     st.className = 'status-msg show status-ok';
   });
 
@@ -1374,9 +1695,65 @@
       return;
     }
     const rows = sessions.slice(0,30).map(s=>`
-      <tr><td>${new Date(s.savedAt).toLocaleString('ko-KR')}</td><td>${s.exName}${s.autoUpperMode?' (자동 상체모드)':''}</td><td>${s.reps}회</td><td>${s.critPassRatio!=null?s.critPassRatio+'%':'-'}</td><td>${(DISABILITY[s.disKey]||DISABILITY.none).label}</td></tr>`).join('');
+      <tr><td>${new Date(s.savedAt).toLocaleString('ko-KR')}</td><td>${s.exName}${s.autoUpperMode?' (자동 전환모드)':''}</td><td>${s.reps}회</td><td>${s.critPassRatio!=null?s.critPassRatio+'%':'-'}</td><td>${(DISABILITY[s.disKey]||DISABILITY.none).label}</td></tr>`).join('');
     histEl.innerHTML = `<table class="rec-table"><thead><tr><th>일시</th><th>종목</th><th>횟수</th><th>기준통과율</th><th>장애유형</th></tr></thead><tbody>${rows}</tbody></table>`;
   }
+
+  async function loadDailyLogs(){
+    const keys = await sList('dailylog:', false);
+    const logs = {};
+    for(const k of keys){
+      const raw = await sGet(k, false);
+      if(raw){ try{ const d = JSON.parse(raw); logs[d.date] = d; }catch(e){} }
+    }
+    return logs;
+  }
+
+  function ymKey(y,m){ return `${y}-${String(m+1).padStart(2,'0')}`; }
+
+  async function renderCalendar(){
+    const grid = document.getElementById('calGrid');
+    const titleEl = document.getElementById('calTitle');
+    const detailEl = document.getElementById('calDetail');
+    if(!grid) return;
+    const now = new Date();
+    if(calViewYear==null){ calViewYear = now.getFullYear(); calViewMonth = now.getMonth(); }
+    titleEl.textContent = `${calViewYear}년 ${calViewMonth+1}월`;
+    const logs = await loadDailyLogs();
+    const firstDow = new Date(calViewYear, calViewMonth, 1).getDay();
+    const daysInMonth = new Date(calViewYear, calViewMonth+1, 0).getDate();
+    const todayKey = dateKeyOf(Date.now());
+
+    let cells = ['일','월','화','수','목','금','토'].map(d=>`<div class="cal-dow">${d}</div>`).join('');
+    for(let i=0;i<firstDow;i++) cells += `<div class="cal-day empty"></div>`;
+    for(let day=1; day<=daysInMonth; day++){
+      const dk = `${calViewYear}-${String(calViewMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+      const log = logs[dk];
+      const attend = !!log;
+      const pain = attend && log.painAreas && log.painAreas.length;
+      cells += `<div class="cal-day ${attend?'attend':''} ${pain?'pain':''} ${dk===todayKey?'today':''}" data-dk="${dk}">
+        ${day}${attend?'<div class="dot"></div>':''}
+      </div>`;
+    }
+    grid.innerHTML = cells;
+    grid.querySelectorAll('.cal-day.attend').forEach(cell=>{
+      cell.addEventListener('click', ()=>{
+        const dk = cell.dataset.dk;
+        const log = logs[dk];
+        detailEl.style.display = 'block';
+        detailEl.innerHTML = `<b>${dk}</b> — 완료 루틴: ${log.exNames.join(', ')||'-'}<br>
+          장소: ${log.venue==='home'?'집':'시설'}${log.painAreas && log.painAreas.length ? `<br>통증으로 조정: ${log.painAreas.map(k=>(PAIN_AREAS.find(p=>p.key===k)||{}).label).join(', ')}` : ''}`;
+      });
+    });
+  }
+  document.getElementById('calPrevBtn').addEventListener('click', ()=>{
+    calViewMonth--; if(calViewMonth<0){ calViewMonth=11; calViewYear--; }
+    renderCalendar();
+  });
+  document.getElementById('calNextBtn').addEventListener('click', ()=>{
+    calViewMonth++; if(calViewMonth>11){ calViewMonth=0; calViewYear++; }
+    renderCalendar();
+  });
 
   async function renderRecordsTab(){
     await loadCoreState();
@@ -1385,6 +1762,7 @@
     renderGoals(sessions);
     renderChart(sessions, weightLogs);
     renderHistoryTable(sessions);
+    await renderCalendar();
   }
 
   document.getElementById('resetAllBtn').addEventListener('click', async ()=>{
@@ -1394,10 +1772,14 @@
     await sDelete('omt:disExtra', false);
     await sDelete('omt:fblevel', false);
     await sDelete('omt:finalplan', false);
+    await sDelete('omt:venue', false);
+    await sDelete('omt:painareas', false);
     const skeys = await sList('session:', false);
     for(const k of skeys) await sDelete(k, false);
     const wkeys = await sList('weightlog:', false);
     for(const k of wkeys) await sDelete(k, false);
+    const dkeys = await sList('dailylog:', false);
+    for(const k of dkeys) await sDelete(k, false);
     location.reload();
   });
 
@@ -1406,6 +1788,8 @@
     renderFbGrid();
     renderPrescLvlGrid();
     await loadCoreState();
+    renderVenueGrid();
+    renderPainGrid();
     if(disKey!=='none'){
       const d = DISABILITY[disKey];
       currentDisGridCatKey = d.cat;
@@ -1448,3 +1832,4 @@
 </script>
 </body>
 </html>
+
